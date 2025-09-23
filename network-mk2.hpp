@@ -2,7 +2,7 @@
 #include <string>
 #include <random>
 
-// TODO: chnage all of the activation fuinctions in the code to the activation function pointer
+// TODO: chnage all of the activation(backpropagation) fuinctions in the code to the activation function pointer
 
 double alpha = 0.01;
 
@@ -76,10 +76,10 @@ class network{
                 for(int j = 0; j < widths[i+1]; j++){
                     neurons[i+1][j] = 0;
                     for(int k = 0; k < widths[i]; k++){
-                        neurons[i+1][j] += neurons[i][k]*weights[i][k][j];
+                        neurons[i+1][j] += neurons[i][k]*weights[i][k][j]; // sum weigthted neurons
                     }
-                    neurons[i+1][j] += biases[i][j];
-                    neurons[i+1][j] = activation(neurons[i+1][j]);
+                    neurons[i+1][j] += biases[i][j]; // apply biases
+                    neurons[i+1][j] = activation(neurons[i+1][j]); // apply activations
                 }
             }
             return neurons[length-1];

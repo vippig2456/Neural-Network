@@ -100,7 +100,7 @@ class network{
                 }
             }
             for(int l = length - 3; l > -1; l--) { // cycling through lower layers
-                delta[l] = new double[widths[l + 1]];
+                delta[l] = new double[widths[l + 1]]; // MEMORY LEAK!!!!!!!
                 for(int j = 0; j < widths[l+1]; j++) { // cycling through neurons for delta on the current layer
                     delta[l][j] = 0;
                     for (int k = 0; k < widths[l+2]; k++) {

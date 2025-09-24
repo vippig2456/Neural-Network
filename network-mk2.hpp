@@ -20,9 +20,13 @@ class network{
 
         double (*activation)(double); // the activation function pointer
         double (*activationDerivitive)(double); // the activation function derivitive function function pointer
-        network(int l, int* lWidth, double _eta, double (*activationFunction)(double), double (*activationFunctionDerivitive)(double)){
+        double (*cost)(double* , double* , int ); // the function pointer for the cost function
+        void (*costDerivitive)(double*, double*, double*, int); // the function pointer for the derivitive of the cost function
+        network(int l, int* lWidth, double _eta, double (*activationFunction)(double), double (*activationFunctionDerivitive)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivitive)(double*, double*, double*, int)){
             activation = activationFunction;
             activationDerivitive = activationFunctionDerivitive;
+            cost = costFunction;
+            costDerivitive = costFunctionDerivitive;
 
             delta = new double*[l - 1]; 
             for(int i = 0; i < l - 1; i++) { // cycling through lower layers
@@ -57,14 +61,14 @@ class network{
                     biases[i][j] = normalDist(gen);
                 }
             }
-            weights = new double**[l]; 
+            weights = new double**[l-1]; 
             for (int i = 0; i < l-1; i++) { //cycling through the layers
                 weights[i] = new double*[lWidth[i]];
                 for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
                     weights[i][j] = new double[lWidth[i+1]];
                     for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
                         weights[i][j][h] = normalDist(gen); //assigning weights
-                    } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the koth neuron in the l+1th layer
+                    } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
                 }
             }
             return; 
@@ -101,31 +105,24 @@ class network{
             return;
         }
 
-        void backpropagation(double* targets) { // returns the derivatives of the cost function with repect to each weight and bias, given the activations and targets
-            for(int k = 0; k < widths[length-1]; k++) {
-                if (neurons[length-1][k] >= 0) {
-                    delta[length-2][k] = 2*(neurons[length-1][k] - targets[k]);
-                } else {
-                    delta[length-2][k] = 0;
-                }
+        void backpropagation(double* desiredOutput){
+            costDerivitive(desiredOutput, neurons[length-1], delta[length-2], length); // put the error derivitive from the cost function into the last layer of delta
+            for(int i = 0; i < widths[length-1]; i++){
+                delta[length-2][i] *= activationDerivitive(z[length-2][i]); // multiply by the gradient of the z score for each varable
             }
-            for(int l = length - 3; l > -1; l--) { // cycling through lower layers
-                delta[l] = new double[widths[l + 1]];
-                for(int j = 0; j < widths[l+1]; j++) { // cycling through neurons for delta on the current layer
-                    delta[l][j] = 0;
-                    for (int k = 0; k < widths[l+2]; k++) {
-                        if (z[l][j] >= 0) {
-                            delta[l][j] += weights[l+1][k][j] * delta[l+1][k];
-                        } else {
-                            delta[l][j] = 0;
-                        }
+            for(int i = length-3; i > -1; i--){
+                for(int j = 0; j < widths[i]; j++){
+                    delta[i][j] = 0; // set the current neurons error to 0 to sum up the weighted inputs
+                    for(int k = 0; k < widths[i+1]; k++){
+                        delta[i][j] += weights[i+1][k][j] * delta[i+1][k]; // sum the weigths times delta from the next layer
                     }
+                    delta[i][j] *= activationDerivitive(z[i][j]); // multiply by the gradient of the z score at the current neuron
                 }
             }
-            for (int l = 0; l < length - 1; l++) {
-                for (int k = 0; k < widths[l]; k++) {
-                    for (int j = 0; j < widths[l+1]; j++) {
-                        nablaW[l][k][j] = delta[l][j] * relu(z[l][k]);
+            for(int i = 0; i < length; i++){
+                for(int j = 0; j < widths[i]; j++){
+                    for(int k = 0; k < widths[i+1]; k++){
+                        nablaW[i][j][k] = neurons[i][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer
                     }
                 }
             }
@@ -145,7 +142,6 @@ class network{
 
         void trainingLoop(double* targets, double* inputs) {
             compute(inputs);
-            backpropagation(targets);
             change_parameters();
             return;
         }
@@ -243,4 +239,19 @@ double gaussian(double input){
 
 double dGaussian(double input){
     return -2*input*pow(2.7182818, -(input*input));
+}
+
+double quadraticCost(double* desiredOutput, double* activations, int arrayLength){
+    double lengthSqrd = 0;
+    for(int i = 0; i < arrayLength; i++){
+        lengthSqrd += (desiredOutput[i] - activations[i])*(desiredOutput[i] - activations[i]); // the square of the difference bewtween the desired output(output) and the accual output(activations)
+    }
+    return lengthSqrd; // the length squared cancels out the square root needed to find the length of a vector leaving the sum of the squares(lengthSqrd)
+}
+
+void dQuadraticCost(double* desiredOutput, double* activations, double* output, int length){
+    for(int i = 0; i < length; i++){
+        output[i] = 2*(activations[i]-desiredOutput[i]);
+    }
+    return;
 }

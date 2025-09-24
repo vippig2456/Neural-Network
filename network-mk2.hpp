@@ -2,7 +2,6 @@
 #include <string>
 #include <random>
 
-// TODO: chnage all of the activation(backpropagation) fuinctions in the code to the activation function pointer
 
 double alpha = 0.01;
 
@@ -18,6 +17,7 @@ class network{
         double*** nablaW; // Derivative of the cost function with respect to each weight
         double** nablaB; // Derivative of the cost function with respect to the biases
         double eta; // learning rate
+        double meanCost; // the cost of the network
 
         double (*activation)(double); // the activation function pointer
         double (*activationDerivative)(double); // the activation function Derivative function function pointer
@@ -45,7 +45,7 @@ class network{
                 z[i] = new double[widths[i+1]];
             }
 
-            nablaB = new double*[length-1];
+            nablaB = new double*[l-1];
             for(int i = 0; i < l-1; i++){
                 nablaB[i] = new double[widths[i+1]];
             }
@@ -105,7 +105,6 @@ class network{
                         neurons[i+1][j] += neurons[i][k]*weights[i][k][j];
                     }
                     neurons[i+1][j] += biases[i][j];
-                    std::cout << z[i][j] << "\n";
                     z[i][j] = neurons[i+1][j];
                     neurons[i+1][j] = activation(neurons[i+1][j]);
                 }
@@ -150,21 +149,24 @@ class network{
         }
 
         void trainingStep(double* targets, double* inputs) {
+            meanCost = 0;
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i]; j++){
                     nablaB[i][j] = 0;
                     for(int k = 0; k < widths[i+1]; k++){
-                        weights[i][j][k] = 0;
+                        nablaW[i][j][k] = 0;
                     }
                 }
             }
             compute(inputs);
             backpropagation(targets);
+            meanCost = cost(targets, inputs, widths[length-1]);
             changeParameters();
             return;
         }
 
-        void trainingStep(double** targets, double* inputs, int numTargets) {
+        void trainingStep(double** targets, double** inputs, int numTargets) {
+            meanCost = 0;
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i]; j++){
                     nablaB[i][j] = 0;
@@ -173,9 +175,10 @@ class network{
                     }
                 }
             }
-            compute(inputs);
             for(int i = 0;i < numTargets; i++){
+                compute(inputs[i]);
                 backpropagation(targets[i]); // loop though the backpropagation to sum the bias and weight gradients
+                meanCost += cost(targets[i], inputs[i], widths[length-1]);
             }
             for(int i = 0; i < length-1; i++){ // average the gradients of the weighs and biases across the different training exampels.
                 for(int j = 0; j < widths[i]; j++){
@@ -185,6 +188,7 @@ class network{
                     }
                 }
             }
+            meanCost /= numTargets; // divide the sum of the costs to make it the mean cost
             changeParameters();
             return;
         }
@@ -226,6 +230,11 @@ class network{
                 delete nablaW[i];
             }
             delete[] nablaW;
+
+            for(int i = 0; i < length - 1; i++) {
+                delete[] nablaB[i];
+            }
+            delete[] nablaB;
 
             delete[] widths;
             return;

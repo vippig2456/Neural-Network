@@ -115,7 +115,7 @@ class network{
                 for(int j = 0; j < widths[i+1]; j++){
                     delta[i][j] = 0; // set the current neurons error to 0 to sum up the weighted inputs
                     for(int k = 0; k < widths[i+2]; k++){
-                        delta[i][j] += weights[i+1][k][j] * delta[i+1][k]; // sum the weigths times delta from the next layer
+                        delta[i][j] += weights[i+1][j][k] * delta[i+1][k]; // sum the weigths times delta from the next layer
                     }
                     delta[i][j] *= activationDerivitive(z[i][j]); // multiply by the gradient of the z score at the current neuron
                 }
@@ -123,7 +123,7 @@ class network{
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i]; j++){
                     for(int k = 0; k < widths[i+1]; k++){
-                        nablaW[i][j][k] = neurons[i+1][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer. VERY IMPORTANT NOT TO FORGET THAT activation(z[i][j]) = neurons[i+1][j] IT CAUSED MUCH PAIN
+                        nablaW[i][j][k] = neurons[i][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer.
                     }
                 }
             }

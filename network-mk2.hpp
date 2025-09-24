@@ -38,7 +38,7 @@ class network{
             std::normal_distribution<double> normalDist(0, 1); // make a normal distribution weith a mean of 0 and sd of 1
             length = l;
             widths = new int[l];
-            memcpy(widths, lWidth, l*4);
+            memcpy(widths, lWidth, l*sizeof(int));
             z = new double*[length - 1];
             for(int i = 0; i < length-1; i++) {
                 z[i] = new double[widths[i+1]];
@@ -75,7 +75,7 @@ class network{
         }
         
         double* computer(double* inputs){
-            memcpy(neurons[0], inputs, widths[0]*8); //copy the inputs to the first layer of the neuron
+            memcpy(neurons[0], inputs, widths[0]*sizeof(double)); //copy the inputs to the first layer of the neuron
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i+1]; j++){
                     neurons[i+1][j] = 0;
@@ -90,7 +90,7 @@ class network{
         }
 
         void compute(double* inputs) { // computer but for training loop
-            memcpy(neurons[0], inputs, widths[0]*8); //copy the inputs to the first layer of the neuron
+            memcpy(neurons[0], inputs, widths[0]*sizeof(double)); //copy the inputs to the first layer of the neuron
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i+1]; j++){
                     neurons[i+1][j] = 0;
@@ -98,6 +98,7 @@ class network{
                         neurons[i+1][j] += neurons[i][k]*weights[i][k][j];
                     }
                     neurons[i+1][j] += biases[i][j];
+                    std::cout << z[i][j] << "\n";
                     z[i][j] = neurons[i+1][j];
                     neurons[i+1][j] = activation(neurons[i+1][j]);
                 }
@@ -106,23 +107,23 @@ class network{
         }
 
         void backpropagation(double* desiredOutput){
-            costDerivitive(desiredOutput, neurons[length-1], delta[length-2], length); // put the error derivitive from the cost function into the last layer of delta
+            costDerivitive(desiredOutput, neurons[length-1], delta[length-2], widths[length-1]); // put the error derivitive from the cost function into the last layer of delta
             for(int i = 0; i < widths[length-1]; i++){
                 delta[length-2][i] *= activationDerivitive(z[length-2][i]); // multiply by the gradient of the z score for each varable
             }
             for(int i = length-3; i > -1; i--){
-                for(int j = 0; j < widths[i]; j++){
+                for(int j = 0; j < widths[i+1]; j++){
                     delta[i][j] = 0; // set the current neurons error to 0 to sum up the weighted inputs
-                    for(int k = 0; k < widths[i+1]; k++){
+                    for(int k = 0; k < widths[i+2]; k++){
                         delta[i][j] += weights[i+1][k][j] * delta[i+1][k]; // sum the weigths times delta from the next layer
                     }
                     delta[i][j] *= activationDerivitive(z[i][j]); // multiply by the gradient of the z score at the current neuron
                 }
             }
-            for(int i = 0; i < length; i++){
+            for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i]; j++){
                     for(int k = 0; k < widths[i+1]; k++){
-                        nablaW[i][j][k] = neurons[i][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer
+                        nablaW[i][j][k] = neurons[i+1][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer. VERY IMPORTANT NOT TO FORGET THAT activation(z[i][j]) = neurons[i+1][j] IT CAUSED MUCH PAIN
                     }
                 }
             }
@@ -142,6 +143,7 @@ class network{
 
         void trainingLoop(double* targets, double* inputs) {
             compute(inputs);
+            backpropagation(targets);
             change_parameters();
             return;
         }
@@ -211,18 +213,19 @@ double leakyRelu(double input){
 }
 
 double dLeakyRelu(double input){
-    if(input > 0){
+    if(input >= 0){
         return 1;
     }
     return alpha;
 }
 
 double sigmoid(double input){
-    return 1/(1+pow(2.7182818, input));
+    return 1/(1+exp(-input));
 }
 
 double dSigmoid(double input){
-    return sigmoid(input)*(1-sigmoid(input));
+    double s = sigmoid(input);
+    return s*(1-s);
 }
 
 double softSign(double input){

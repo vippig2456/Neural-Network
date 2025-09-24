@@ -1,18 +1,14 @@
 #include <iostream>
 #include "network-mk2.hpp"
 int main() {
+    double cost;
     int layers[3] = {8, 8, 1};
     network neural_net(3, layers, 0.01, leakyRelu, dLeakyRelu, quadraticCost, dQuadraticCost);
     double input[8] = {0, 1, 1, 1, 0, 1, 0, 0};
     double targets[1] = {64};
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 50; i++) {
         neural_net.trainingLoop(targets, input);
-    }
-    neural_net.computer(input);
-    std::cout << neural_net.neurons[2][0];
-    for (int i = 0; i < 8; i++) {
-        for (int g = 0; g < 8; g++) {
-            std::cout << neural_net.weights[0][i][g] << '\n';
-        }
+        cost = (targets[0]-neural_net.neurons[2][0])*(targets[0]-neural_net.neurons[2][0]);
+        std::cout << "cost: " << cost << " output: " << neural_net.neurons[2][0] << '\n';
     }
 }

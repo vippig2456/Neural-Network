@@ -157,10 +157,12 @@ class network{
             meanCost = 0;
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i]; j++){
-                    nablaB[i][j] = 0;
                     for(int k = 0; k < widths[i+1]; k++){
                         nablaW[i][j][k] = 0;
                     }
+                }
+                for(int j = 0; j < widths[i+1]; j++){
+                    nablaB[i][j] = 0;
                 }
             }
             compute(inputs);
@@ -174,10 +176,12 @@ class network{
             meanCost = 0;
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i]; j++){
-                    nablaB[i][j] = 0;
                     for(int k = 0; k < widths[i+1]; k++){
                         nablaW[i][j][k] = 0;
                     }
+                }
+                for(int j = 0; j < widths[i+1]; j++){
+                    nablaB[i][j] = 0;
                 }
             }
             for(int i = 0;i < numTargets; i++){
@@ -228,17 +232,17 @@ class network{
             }
             delete[] weights;
 
-            //for(int i = 0; i < length-1; i++){
-            //    for(int j = 0; j < widths[i]; j++){
-            //        delete[] nablaW[i][j];
-            //    }
-            //    delete[] nablaW[i];
-            //}
-            //delete[] nablaW;
+            for(int i = 0; i < length-1; i++){
+                for(int j = 0; j < widths[i]; j++){
+                    delete[] nablaW[i][j];
+                }
+                delete[] nablaW[i];
+            }
+            delete[] nablaW;
 
-            //for(int i = 0; i < length - 1; i++) {
-            //    delete[] nablaB[i];
-            //}
+            for(int i = 0; i < length - 1; i++) {
+                delete[] nablaB[i];
+            }
             delete[] nablaB;
 
             delete[] widths;

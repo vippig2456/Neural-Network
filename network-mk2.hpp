@@ -15,19 +15,19 @@ class network{
         int length; // the length of the network
         double** delta; // delta for backpropagation, note that there is no delta for the first layer
         double** z; // z values of all layers minus the first layer
-        double*** nablaW; // derivative of the cost function with respect to each weight
-        double** nablaB; // derivative
+        double*** nablaW; // Derivative of the cost function with respect to each weight
+        double** nablaB; // Derivative of the cost function with respect to the biases
         double eta; // learning rate
 
         double (*activation)(double); // the activation function pointer
-        double (*activationderivative)(double); // the activation function derivative function function pointer
+        double (*activationDerivative)(double); // the activation function Derivative function function pointer
         double (*cost)(double* , double* , int ); // the function pointer for the cost function
-        void (*costderivative)(double*, double*, double*, int); // the function pointer for the derivative of the cost function
-        network(int l, int* lWidth, double _eta, double (*activationFunction)(double), double (*activationFunctionderivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionderivative)(double*, double*, double*, int)){
+        void (*costDerivative)(double*, double*, double*, int); // the function pointer for the Derivative of the cost function
+        network(int l, int* lWidth, double _eta, double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int)){
             activation = activationFunction;
-            activationderivative = activationFunctionderivative;
+            activationDerivative = activationFunctionDerivative;
             cost = costFunction;
-            costderivative = costFunctionderivative;
+            costDerivative = costFunctionDerivative;
 
             delta = new double*[l - 1]; 
             for(int i = 0; i < l - 1; i++) { // cycling through lower layers
@@ -108,9 +108,9 @@ class network{
         }
 
         void backpropagation(double* desiredOutput){
-            costderivative(desiredOutput, neurons[length-1], delta[length-2], widths[length-1]); // put the error derivative from the cost function into the last layer of delta
+            costDerivative(desiredOutput, neurons[length-1], delta[length-2], widths[length-1]); // put the error Derivative from the cost function into the last layer of delta
             for(int i = 0; i < widths[length-1]; i++){
-                delta[length-2][i] *= activationderivative(z[length-2][i]); // multiply by the gradient of the z score for each varable
+                delta[length-2][i] *= activationDerivative(z[length-2][i]); // multiply by the gradient of the z score for each varable
             }
             for(int i = length-3; i > -1; i--){
                 for(int j = 0; j < widths[i+1]; j++){
@@ -118,7 +118,7 @@ class network{
                     for(int k = 0; k < widths[i+2]; k++){
                         delta[i][j] += weights[i+1][j][k] * delta[i+1][k]; // sum the weigths times delta from the next layer
                     }
-                    delta[i][j] *= activationderivative(z[i][j]); // multiply by the gradient of the z score at the current neuron
+                    delta[i][j] *= activationDerivative(z[i][j]); // multiply by the gradient of the z score at the current neuron
                 }
             }
             for(int i = 0; i < length-1; i++){
@@ -131,7 +131,7 @@ class network{
             return;
         }
 
-        void change_parameters() {
+        void changeParameters() {
             for (int l = 0; l < length - 1; l++) {
                 for (int j = 0; j < widths[l+1]; j++) {
                     biases[l][j] -= eta * delta[l][j];
@@ -142,10 +142,18 @@ class network{
             }
         }
 
-        void trainingLoop(double* targets, double* inputs) {
+        void trainingStep(double* targets, double* inputs) {
+            for(int i = 0; i < length-1; i++){
+                for(int j = 0; j < widths[i]; j++){
+                    nablaB[i][j] = 0;
+                    for(int k = 0; k < widths[i+1]; k++){
+                        weights[i][j][k] = 0;
+                    }
+                }
+            }
             compute(inputs);
             backpropagation(targets);
-            change_parameters();
+            changeParameters();
             return;
         }
 

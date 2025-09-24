@@ -160,7 +160,7 @@ class network{
             }
             compute(inputs);
             backpropagation(targets);
-            meanCost = cost(targets, inputs, widths[length-1]);
+            meanCost = cost(targets, neurons[length-1], widths[length-1]);
             changeParameters();
             return;
         }
@@ -178,7 +178,7 @@ class network{
             for(int i = 0;i < numTargets; i++){
                 compute(inputs[i]);
                 backpropagation(targets[i]); // loop though the backpropagation to sum the bias and weight gradients
-                meanCost += cost(targets[i], inputs[i], widths[length-1]);
+                meanCost += cost(targets[i], neurons[length-1], widths[length-1]);
             }
             for(int i = 0; i < length-1; i++){ // average the gradients of the weighs and biases across the different training exampels.
                 for(int j = 0; j < widths[i]; j++){

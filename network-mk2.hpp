@@ -191,10 +191,12 @@ class network{
             }
             for(int i = 0; i < length-1; i++){ // average the gradients of the weighs and biases across the different training exampels.
                 for(int j = 0; j < widths[i]; j++){
-                    nablaB[i][j] /= numTargets;
                     for(int k = 0; k < widths[i+1]; k++){
                         nablaW[i][j][k] /= numTargets;
                     }
+                }
+                for(int j = 0; j < widths[i+1]; j++){
+                    nablaB[i][j] /= numTargets;
                 }
             }
             meanCost /= numTargets; // divide the sum of the costs to make it the mean cost

@@ -15,7 +15,7 @@ int main() {
         }
     }
     for(int i = 0; i < 50; i++){
-        neural_net.trainingStep(targets[54], inputs[54]);
+        neural_net.trainingStep(targets, inputs, 256);
         std::cout << i+1 << " Cost: " << neural_net.meanCost <<"\n";
     }
 }

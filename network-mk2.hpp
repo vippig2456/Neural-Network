@@ -125,8 +125,6 @@ class network{
                     for(int k = 0; k < widths[i+2]; k++){
                         delta[i][j] += weights[i+1][j][k] * delta[i+1][k]; // sum the weigths times delta from the next layer
                     }
-                }
-                for(int j = 0; j < widths[i+1]; j++){
                     delta[i][j] *= activationDerivative(z[i][j]); // multiply by the gradient of the z score at the current neuron
                 }
             }
@@ -135,6 +133,8 @@ class network{
                     for(int k = 0; k < widths[i+1]; k++){
                         nablaW[i][j][k] += neurons[i][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer.
                     }
+                }
+                for(int j = 0; j < widths[i+1]; j++){
                     nablaB[i][j] += delta[i][j]; // the gradient for the biases is the same as the error(the error being the gradient of the cost function(as the cost function should be minimised when its gradient is equal to 0))
                 }
             }

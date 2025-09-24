@@ -44,6 +44,12 @@ class network{
             for(int i = 0; i < length-1; i++) {
                 z[i] = new double[widths[i+1]];
             }
+
+            nablaB = new double*[length-1];
+            for(int i = 0; i < l-1; i++){
+                nablaB[i] = new double[widths[i+1]];
+            }
+
             nablaW = new double**[length-1];
             for (int i = 0; i < length-1; i++) {
                 nablaW[i] = new double*[widths[i]];
@@ -124,8 +130,9 @@ class network{
             for(int i = 0; i < length-1; i++){
                 for(int j = 0; j < widths[i]; j++){
                     for(int k = 0; k < widths[i+1]; k++){
-                        nablaW[i][j][k] = neurons[i][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer.
+                        nablaW[i][j][k] += neurons[i][j]*delta[i][k]; // nablaW equals the activation of the jth neuron the of previous lay times the error of the kth neuron on the current layer.
                     }
+                    nablaB[i][j] += delta[i][j]; // the gradient for the biases is the same as the error(the error being the gradient of the cost function(as the cost function should be minimised when its gradient is equal to 0))
                 }
             }
             return;
@@ -153,6 +160,31 @@ class network{
             }
             compute(inputs);
             backpropagation(targets);
+            changeParameters();
+            return;
+        }
+
+        void trainingStep(double** targets, double* inputs, int numTargets) {
+            for(int i = 0; i < length-1; i++){
+                for(int j = 0; j < widths[i]; j++){
+                    nablaB[i][j] = 0;
+                    for(int k = 0; k < widths[i+1]; k++){
+                        weights[i][j][k] = 0;
+                    }
+                }
+            }
+            compute(inputs);
+            for(int i = 0;i < numTargets; i++){
+                backpropagation(targets[i]); // loop though the backpropagation to sum the bias and weight gradients
+            }
+            for(int i = 0; i < length-1; i++){ // average the gradients of the weighs and biases across the different training exampels.
+                for(int j = 0; j < widths[i]; j++){
+                    nablaB[i][j] /= numTargets;
+                    for(int k = 0; k < widths[i+1]; k++){
+                        weights[i][j][k] /= numTargets;
+                    }
+                }
+            }
             changeParameters();
             return;
         }

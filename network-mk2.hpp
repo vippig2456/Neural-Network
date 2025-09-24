@@ -5,6 +5,8 @@
 
 double alpha = 0.01;
 
+// TO DO: fix the runtime error with the deletion of nablaW
+
 class network{
     public:
         double** neurons; // the values of the neurons
@@ -123,6 +125,8 @@ class network{
                     for(int k = 0; k < widths[i+2]; k++){
                         delta[i][j] += weights[i+1][j][k] * delta[i+1][k]; // sum the weigths times delta from the next layer
                     }
+                }
+                for(int j = 0; j < widths[i+1]; j++){
                     delta[i][j] *= activationDerivative(z[i][j]); // multiply by the gradient of the z score at the current neuron
                 }
             }
@@ -171,7 +175,7 @@ class network{
                 for(int j = 0; j < widths[i]; j++){
                     nablaB[i][j] = 0;
                     for(int k = 0; k < widths[i+1]; k++){
-                        weights[i][j][k] = 0;
+                        nablaW[i][j][k] = 0;
                     }
                 }
             }
@@ -184,7 +188,7 @@ class network{
                 for(int j = 0; j < widths[i]; j++){
                     nablaB[i][j] /= numTargets;
                     for(int k = 0; k < widths[i+1]; k++){
-                        weights[i][j][k] /= numTargets;
+                        nablaW[i][j][k] /= numTargets;
                     }
                 }
             }
@@ -227,7 +231,7 @@ class network{
                 for(int j = 0; j < widths[i]; j++){
                     delete[] nablaW[i][j];
                 }
-                delete nablaW[i];
+                delete[] nablaW[i];
             }
             delete[] nablaW;
 

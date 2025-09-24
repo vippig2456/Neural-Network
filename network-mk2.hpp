@@ -59,6 +59,7 @@ class network{
                     nablaW[i][k] = new double[widths[i+1]];
                 }
             }
+
             neurons = new double*[l];
             for(int i = 0; i < l; i++){
                 neurons[i] = new double[lWidth[i]];
@@ -227,17 +228,17 @@ class network{
             }
             delete[] weights;
 
-            for(int i = 0; i < length-1; i++){
-                for(int j = 0; j < widths[i]; j++){
-                    delete[] nablaW[i][j];
-                }
-                delete[] nablaW[i];
-            }
-            delete[] nablaW;
+            //for(int i = 0; i < length-1; i++){
+            //    for(int j = 0; j < widths[i]; j++){
+            //        delete[] nablaW[i][j];
+            //    }
+            //    delete[] nablaW[i];
+            //}
+            //delete[] nablaW;
 
-            for(int i = 0; i < length - 1; i++) {
-                delete[] nablaB[i];
-            }
+            //for(int i = 0; i < length - 1; i++) {
+            //    delete[] nablaB[i];
+            //}
             delete[] nablaB;
 
             delete[] widths;

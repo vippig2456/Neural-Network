@@ -1,6 +1,8 @@
 #include <cmath>
 #include <string>
 #include <random>
+#include <fstream>
+#include <string>
 
 
 double alpha = 0.01;
@@ -19,17 +21,21 @@ class network{
         double eta; // learning rate
         double meanCost; // the cost of the network
 
+        std::fstream file;
+
         double (*learningRate)(double cost); // a function for the learning rate besed on the cost
         double (*activation)(double); // the activation function pointer
         double (*activationDerivative)(double); // the activation function Derivative function function pointer
         double (*cost)(double* , double* , int ); // the function pointer for the cost function
         void (*costDerivative)(double*, double*, double*, int); // the function pointer for the Derivative of the cost function
-        network(int l, int* lWidth, double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int), double (*learningRateFunction)(double cost)){
+        network(int l, int* lWidth, std::string filePath, bool useFileToInit ,double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int), double (*learningRateFunction)(double cost)){
             activation = activationFunction;
             activationDerivative = activationFunctionDerivative;
             cost = costFunction;
             costDerivative = costFunctionDerivative;
             learningRate = learningRateFunction;
+
+            file.open(filePath);
 
             delta = new double*[l - 1]; 
             for(int i = 0; i < l - 1; i++) { // cycling through lower layers
@@ -63,25 +69,46 @@ class network{
             for(int i = 0; i < l; i++){
                 neurons[i] = new double[lWidth[i]];
             }
-            biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
-            for (int i = 0; i < l-1; i ++) {
-                biases[i] = new double[lWidth[i+1]];
-                for(int j = 0; j < lWidth[i+1]; j++){
-                    biases[i][j] = normalDist(gen);
+
+            if(useFileToInit){
+                biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
+                for (int i = 0; i < l-1; i ++) {
+                    biases[i] = new double[lWidth[i+1]];
+                    for(int j = 0; j < lWidth[i+1]; j++){
+                    }
                 }
-            }
-            weights = new double**[l-1]; 
-            for (int i = 0; i < l-1; i++) { //cycling through the layers
-                weights[i] = new double*[lWidth[i]];
-                for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
-                    weights[i][j] = new double[lWidth[i+1]];
-                    for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
-                        weights[i][j][h] = normalDist(gen); //assigning weights
-                    } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
+                weights = new double**[l-1]; 
+                for (int i = 0; i < l-1; i++) { //cycling through the layers
+                    weights[i] = new double*[lWidth[i]];
+                    for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
+                        weights[i][j] = new double[lWidth[i+1]];
+                        for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
+                        } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
+                    }
+                }
+            }else{
+                biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
+                for (int i = 0; i < l-1; i ++) {
+                    biases[i] = new double[lWidth[i+1]];
+                    for(int j = 0; j < lWidth[i+1]; j++){
+                        biases[i][j] = normalDist(gen);
+                    }
+                }
+                weights = new double**[l-1]; 
+                for (int i = 0; i < l-1; i++) { //cycling through the layers
+                    weights[i] = new double*[lWidth[i]];
+                    for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
+                        weights[i][j] = new double[lWidth[i+1]];
+                        for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
+                            weights[i][j][h] = normalDist(gen); //assigning weights
+                        } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
+                    }
                 }
             }
             return; 
         }
+
+        
         
         double* computer(double* inputs){
             memcpy(neurons[0], inputs, widths[0]*sizeof(double)); //copy the inputs to the first layer of the neuron
@@ -248,6 +275,8 @@ class network{
             delete[] nablaB;
 
             delete[] widths;
+
+            file.close();
             return;
         }
 };

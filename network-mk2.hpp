@@ -111,7 +111,7 @@ class network{
             return; 
         }
 
-        network(std::string filePath, bool useFileToInit ,double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int), double (*learningRateFunction)(double cost)){
+        network(std::string filePath ,double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int), double (*learningRateFunction)(double cost)){
             activation = activationFunction;
             activationDerivative = activationFunctionDerivative;
             cost = costFunction;
@@ -120,23 +120,30 @@ class network{
 
             file.open(filePath);
             if(file){
-                delta = new double*[l - 1]; 
-                for(int i = 0; i < l - 1; i++) { // cycling through lower layers
-                    delta[i] = new double[lWidth[i + 1]];
+                std::string line;
+                std::getline(file, line, ' '); // get the first chunk of caracters ending with a space
+                length = std::stoi(line); // change the string to a int and store it in length the first number in the file is the length
+
+                widths = new int[length];
+                for(int i = 0; i < length; i++){
+                    std::getline(file, line, ' '); // get the next number(the width of that layer)
+                    widths[i] = std::stoi(line); // change the string to a int and store it as the layer width
+                }
+
+                delta = new double*[length - 1]; 
+                for(int i = 0; i < length - 1; i++) { // cycling through lower layers
+                    delta[i] = new double[widths[i + 1]];
                 }
                 std::random_device rd;
                 std::mt19937 gen(rd());
                 std::normal_distribution<double> normalDist(0, 1); // make a normal distribution weith a mean of 0 and sd of 1
-                length = l;
-                widths = new int[l];
-                memcpy(widths, lWidth, l*sizeof(int));
                 z = new double*[length - 1];
                 for(int i = 0; i < length-1; i++) {
                     z[i] = new double[widths[i+1]];
                 }
 
-                nablaB = new double*[l-1];
-                for(int i = 0; i < l-1; i++){
+                nablaB = new double*[length-1];
+                for(int i = 0; i < length-1; i++){
                     nablaB[i] = new double[widths[i+1]];
                 }
 
@@ -148,46 +155,33 @@ class network{
                     }
                 }
 
-                neurons = new double*[l];
-                for(int i = 0; i < l; i++){
-                    neurons[i] = new double[lWidth[i]];
+                neurons = new double*[length];
+                for(int i = 0; i < length; i++){
+                    neurons[i] = new double[widths[i]];
                 }
 
-                if(useFileToInit){
-                    biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
-                    for (int i = 0; i < l-1; i ++) {
-                        biases[i] = new double[lWidth[i+1]];
-                        for(int j = 0; j < lWidth[i+1]; j++){
-                        }
-                    }
-                    weights = new double**[l-1]; 
-                    for (int i = 0; i < l-1; i++) { //cycling through the layers
-                        weights[i] = new double*[lWidth[i]];
-                        for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
-                            weights[i][j] = new double[lWidth[i+1]];
-                            for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
-                            } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
-                        }
-                    }
-                }else{
-                    biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
-                    for (int i = 0; i < l-1; i ++) {
-                        biases[i] = new double[lWidth[i+1]];
-                        for(int j = 0; j < lWidth[i+1]; j++){
-                            biases[i][j] = normalDist(gen);
-                        }
-                    }
-                    weights = new double**[l-1]; 
-                    for (int i = 0; i < l-1; i++) { //cycling through the layers
-                        weights[i] = new double*[lWidth[i]];
-                        for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
-                            weights[i][j] = new double[lWidth[i+1]];
-                            for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
-                                weights[i][j][h] = normalDist(gen); //assigning weights
-                            } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
-                        }
+                double** biases = new double*[length-1];  //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
+                for(int i = 0; i < length-1; i++){
+                    biases[i] = new double[widths[i+1]]; 
+                    for(int j = 0; j < widths[i+1]; j++){
+                        std::getline(file, line, ',');
+                        biases[i][j] = std::stod(line);
                     }
                 }
+
+                double*** weights = new double**[length-1];
+                for(int i = 0; i < length-1; i++){ //cycling through the layers
+                    weights[i] = new double*[widths[i]];
+                    for(int j = 0; j < widths[i]; j++){ //cycling through the lower layer
+                        weights[i][j] = new double[widths[i+1]];
+                        for(int k = 0; k < widths[i+1]; k++){ //cycling thourgh top layer
+                            std::getline(file, line, ',');
+                            std::cout << line << ", ";
+                            weights[i][j][k] = std::stod(line);
+                        } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
+                    }
+                }
+                
             } else{
                 std::cout << "error with reading file";
             }

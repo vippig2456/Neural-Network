@@ -2,8 +2,8 @@
 #include "network-mk2.hpp"
 
 double learn(double input){
-    if(input < 1000){
-        return 0.0007;
+    if(input < 1){
+        return 0.0005;
     } 
     if(input < 10000){
         return 0.001;
@@ -25,7 +25,7 @@ int main() {
             inputs[i][j] = ((i & (1<<j)) != 0); // returns the bit at position j for the number i
         }
     }
-    for(int i = 0; i < 50; i++){
+    for(int i = 0; i < 1000; i++){
         neural_net.trainingStep(targets, inputs, 256);
         std::cout << i+1 << " Cost: " << neural_net.meanCost <<"\n";
     }

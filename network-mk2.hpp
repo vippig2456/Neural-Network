@@ -179,7 +179,6 @@ class network{
             file.close(); // close the original file handle
             std::ofstream outputFile(fileName, std::ofstream::trunc);
             if(outputFile.is_open()){
-                if (file.is_open()) file.close(); // final check
                 outputFile << length << " ";
                 for(int i = 0; i < length; i++){
                     outputFile << widths[i] << ' ';

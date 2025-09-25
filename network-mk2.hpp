@@ -22,6 +22,7 @@ class network{
         double meanCost; // the cost of the network
 
         std::fstream file;
+        std::string fileName;
 
         double (*learningRate)(double cost); // a function for the learning rate besed on the cost
         double (*activation)(double); // the activation function pointer
@@ -35,6 +36,7 @@ class network{
             costDerivative = costFunctionDerivative;
             learningRate = learningRateFunction;
 
+            fileName = filePath;
             file.open(filePath);
             if(file){
                 delta = new double*[l - 1]; 
@@ -186,6 +188,36 @@ class network{
                 std::cout << "error with reading file";
             }
             return; 
+        }
+
+        void writeToFile(){ // write the biases and weigths to a file
+            file.close(); // close the original file handle
+            std::ofstream outputFile(fileName, std::ofstream::trunc);
+            if(outputFile.is_open()){
+                outputFile << length << " ";
+                for(int i = 0; i < length; i++){
+                    outputFile << widths[i] << ' ';
+                }
+                outputFile << '\n';
+                for(int i = 0; i < length-1; i++){
+                    for(int j = 0; j < widths[i]; j++){
+                        for(int k = 0; k < widths[i+1]; k++){
+                            outputFile << weights[i][j][k] << ','; // output the weights in a flattened state
+                        }
+                    }
+                }
+                outputFile << '\n';
+                for(int i = 0; i < length-1; i++){
+                    for(int j = 0; j < widths[i+1]; j++){
+                        outputFile << biases[i][j] << ','; // write the biases in flattened form too
+                    }
+                }
+            }else{
+                std::cout << "File error in writeToFile()\nThe file that needs to be writen to is not open\nYou might of used a constructor that does not create a file handle\n";
+            }
+            outputFile.close();// free the file handle for the temporary output
+            file.open(fileName); // reopen the file handle with the new file
+            return;
         }
         
         double* computer(double* inputs){

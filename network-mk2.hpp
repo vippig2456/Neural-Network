@@ -21,21 +21,22 @@ class network{
         double eta; // learning rate
         double meanCost; // the cost of the network
 
+        double (*learningRate)(double cost); // a function for the learning rate besed on the cost
         double (*activation)(double); // the activation function pointer
         double (*activationDerivative)(double); // the activation function Derivative function function pointer
         double (*cost)(double* , double* , int ); // the function pointer for the cost function
         void (*costDerivative)(double*, double*, double*, int); // the function pointer for the Derivative of the cost function
-        network(int l, int* lWidth, double _eta, double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int)){
+        network(int l, int* lWidth, double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int), double (*learningRateFunction)(double cost)){
             activation = activationFunction;
             activationDerivative = activationFunctionDerivative;
             cost = costFunction;
             costDerivative = costFunctionDerivative;
+            learningRate = learningRateFunction;
 
             delta = new double*[l - 1]; 
             for(int i = 0; i < l - 1; i++) { // cycling through lower layers
                 delta[i] = new double[lWidth[i + 1]];
             }
-            eta = _eta;
             std::random_device rd;
             std::mt19937 gen(rd());
             std::normal_distribution<double> normalDist(0, 1); // make a normal distribution weith a mean of 0 and sd of 1
@@ -189,6 +190,8 @@ class network{
                 backpropagation(targets[i]); // loop though the backpropagation to sum the bias and weight gradients
                 meanCost += cost(targets[i], neurons[length-1], widths[length-1]);
             }
+            meanCost /= numTargets; // divide the sum of the costs to make it the mean cost
+            eta = learningRate(meanCost);
             for(int i = 0; i < length-1; i++){ // average the gradients of the weighs and biases across the different training exampels.
                 for(int j = 0; j < widths[i]; j++){
                     for(int k = 0; k < widths[i+1]; k++){
@@ -199,7 +202,6 @@ class network{
                     nablaB[i][j] /= numTargets;
                 }
             }
-            meanCost /= numTargets; // divide the sum of the costs to make it the mean cost
             changeParameters();
             return;
         }

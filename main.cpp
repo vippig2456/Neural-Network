@@ -3,7 +3,7 @@
 
 double learn(double input){
     if(input < 1000){
-        return 0.0005;
+        return 0.0007;
     } 
     if(input < 10000){
         return 0.001;

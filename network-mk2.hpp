@@ -5,8 +5,6 @@
 
 double alpha = 0.01;
 
-// TO DO: fix the runtime error with the deletion of nablaW
-
 class network{
     public:
         double** neurons; // the values of the neurons

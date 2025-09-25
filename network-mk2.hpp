@@ -162,15 +162,6 @@ class network{
                     neurons[i] = new double[widths[i]];
                 }
 
-                double** biases = new double*[length-1];  //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
-                for(int i = 0; i < length-1; i++){
-                    biases[i] = new double[widths[i+1]]; 
-                    for(int j = 0; j < widths[i+1]; j++){
-                        std::getline(file, line, ',');
-                        biases[i][j] = std::stod(line);
-                    }
-                }
-
                 double*** weights = new double**[length-1];
                 for(int i = 0; i < length-1; i++){ //cycling through the layers
                     weights[i] = new double*[widths[i]];
@@ -183,7 +174,15 @@ class network{
                         } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
                     }
                 }
-                
+
+                double** biases = new double*[length-1];  //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
+                for(int i = 0; i < length-1; i++){
+                    biases[i] = new double[widths[i+1]]; 
+                    for(int j = 0; j < widths[i+1]; j++){
+                        std::getline(file, line, ',');
+                        biases[i][j] = std::stod(line);
+                    }
+                }
             } else{
                 std::cout << "error with reading file";
             }

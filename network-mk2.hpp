@@ -72,39 +72,21 @@ class network{
                     neurons[i] = new double[lWidth[i]];
                 }
 
-                if(useFileToInit){
-                    biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
-                    for (int i = 0; i < l-1; i ++) {
-                        biases[i] = new double[lWidth[i+1]];
-                        for(int j = 0; j < lWidth[i+1]; j++){
-                        }
+                biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
+                for (int i = 0; i < l-1; i ++) {
+                    biases[i] = new double[lWidth[i+1]];
+                    for(int j = 0; j < lWidth[i+1]; j++){
+                        biases[i][j] = normalDist(gen);
                     }
-                    weights = new double**[l-1]; 
-                    for (int i = 0; i < l-1; i++) { //cycling through the layers
-                        weights[i] = new double*[lWidth[i]];
-                        for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
-                            weights[i][j] = new double[lWidth[i+1]];
-                            for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
-                            } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
-                        }
-                    }
-                }else{
-                    biases = new double*[l-1]; //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
-                    for (int i = 0; i < l-1; i ++) {
-                        biases[i] = new double[lWidth[i+1]];
-                        for(int j = 0; j < lWidth[i+1]; j++){
-                            biases[i][j] = normalDist(gen);
-                        }
-                    }
-                    weights = new double**[l-1]; 
-                    for (int i = 0; i < l-1; i++) { //cycling through the layers
-                        weights[i] = new double*[lWidth[i]];
-                        for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
-                            weights[i][j] = new double[lWidth[i+1]];
-                            for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
-                                weights[i][j][h] = normalDist(gen); //assigning weights
-                            } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
-                        }
+                }
+                weights = new double**[l-1]; 
+                for (int i = 0; i < l-1; i++) { //cycling through the layers
+                    weights[i] = new double*[lWidth[i]];
+                    for (int j = 0; j < lWidth[i]; j++) { //cycling through the lower layer
+                        weights[i][j] = new double[lWidth[i+1]];
+                        for (int h = 0; h < lWidth[i+1]; h++) { //cycling thourgh top layer
+                            weights[i][j][h] = normalDist(gen); //assigning weights
+                        } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
                     }
                 }
             } else{
@@ -120,6 +102,7 @@ class network{
             costDerivative = costFunctionDerivative;
             learningRate = learningRateFunction;
 
+            fileName = filePath;
             file.open(filePath);
             if(file){
                 std::string line;
@@ -172,7 +155,6 @@ class network{
                         for(int k = 0; k < widths[i+1]; k++){ //cycling thourgh top layer
                             std::getline(file, line, ',');
                             weights[i][j][k] = std::stod(line);
-                            std::cout << weights[i][j][k] << ",";
                         } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
                     }
                 }
@@ -197,6 +179,7 @@ class network{
             file.close(); // close the original file handle
             std::ofstream outputFile(fileName, std::ofstream::trunc);
             if(outputFile.is_open()){
+                if (file.is_open()) file.close(); // final check
                 outputFile << length << " ";
                 for(int i = 0; i < length; i++){
                     outputFile << widths[i] << ' ';

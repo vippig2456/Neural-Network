@@ -144,7 +144,7 @@ class network{
         void changeParameters() {
             for (int l = 0; l < length - 1; l++) {
                 for (int j = 0; j < widths[l+1]; j++) {
-                    biases[l][j] -= eta * delta[l][j];
+                    biases[l][j] -= eta * nablaB[l][j];
                     for (int k = 0; k < widths[l]; k++) {
                         weights[l][k][j] -= eta * nablaW[l][k][j];
                     }

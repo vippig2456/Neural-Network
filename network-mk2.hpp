@@ -162,20 +162,24 @@ class network{
                     neurons[i] = new double[widths[i]];
                 }
 
-                double*** weights = new double**[length-1];
+                std::getline(file, line, '\n');
+
+                weights = new double**[length-1];
                 for(int i = 0; i < length-1; i++){ //cycling through the layers
                     weights[i] = new double*[widths[i]];
                     for(int j = 0; j < widths[i]; j++){ //cycling through the lower layer
                         weights[i][j] = new double[widths[i+1]];
                         for(int k = 0; k < widths[i+1]; k++){ //cycling thourgh top layer
                             std::getline(file, line, ',');
-                            std::cout << line << ", ";
                             weights[i][j][k] = std::stod(line);
+                            std::cout << weights[i][j][k] << ",";
                         } //weights[l][j][k] is the weight from the jth neuron in the  lth layer to the kth neuron in the l+1th layer
                     }
                 }
 
-                double** biases = new double*[length-1];  //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
+                std::getline(file, line, '\n');
+
+                biases = new double*[length-1];  //REMEMBER WHEN INDEXING THAT BIASES HAVE ONE LESS LAYER THAN THE NEURONS...
                 for(int i = 0; i < length-1; i++){
                     biases[i] = new double[widths[i+1]]; 
                     for(int j = 0; j < widths[i+1]; j++){

@@ -24,7 +24,7 @@ int main() {
         targets[i] = new double[1];
         targets[i][0] = i;
         for(int j = 0; j < 8; j++){
-            inputs[i][j] = ((i & (1<<j)) != 0); // returns the bit at position j for the number i
+            inputs[i][j] = (i & (1<<j)); // returns the bit at position j for the number i
         }
     }
     for(int i = 0; i < 5000; i++){

@@ -16,7 +16,7 @@ int main() {
     double inputs[8];
     std::string file = "./8-bit-binary.dat";
     int layers[3] = {8, 8, 1};
-    network neural_net(3, layers, file, false, leakyRelu, dLeakyRelu, quadraticCost, dQuadraticCost, learn);
+    network neural_net(file, leakyRelu, dLeakyRelu, quadraticCost, dQuadraticCost, learn);
     while(1){
         for(int i = 0; i < layers[0]; i++){
             std::cout << "Input neuron " << i << " value: ";

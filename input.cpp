@@ -23,6 +23,6 @@ int main() {
             std::cin >> inputs[i];
         }
         neural_net.compute(inputs);
-        std::cout << "Output is: " << neural_net.neurons[2][0]*255 << '\n';
+        std::cout << "Output is: " << neural_net.neurons[2][0] << '\n';
     }
 }

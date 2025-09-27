@@ -29,7 +29,7 @@ class network{
         double (*activationDerivative)(double); // the activation function Derivative function function pointer
         double (*cost)(double* , double* , int ); // the function pointer for the cost function
         void (*costDerivative)(double*, double*, double*, int); // the function pointer for the Derivative of the cost function
-        network(int l, int* lWidth, std::string filePath, bool useFileToInit ,double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int), double (*learningRateFunction)(double cost)){
+        network(int l, int* lWidth, std::string filePath, double (*activationFunction)(double), double (*activationFunctionDerivative)(double), double (*costFunction)(double* , double* , int), void (*costFunctionDerivative)(double*, double*, double*, int), double (*learningRateFunction)(double cost)){
             activation = activationFunction;
             activationDerivative = activationFunctionDerivative;
             cost = costFunction;
@@ -38,7 +38,7 @@ class network{
 
             fileName = filePath;
             file.open(filePath);
-            if(file){
+            if(file.is_open()){
                 delta = new double*[l - 1]; 
                 for(int i = 0; i < l - 1; i++) { // cycling through lower layers
                     delta[i] = new double[lWidth[i + 1]];
@@ -289,6 +289,7 @@ class network{
             compute(inputs);
             backpropagation(targets);
             meanCost = cost(targets, neurons[length-1], widths[length-1]);
+            eta = learningRate(meanCost);
             changeParameters();
             return;
         }

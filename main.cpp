@@ -15,7 +15,7 @@ int main() {
     double cost;
     std::string file = "./8-bit-binary.dat";
     int layers[3] = {8, 16, 1};
-    network neural_net(3, layers, file, false, leakyRelu, dLeakyRelu, quadraticCost, dQuadraticCost, learn);
+    network neural_net(3, layers, file, leakyRelu, dLeakyRelu, quadraticCost, dQuadraticCost, learn);
     std::cout << "length " << neural_net.length << "widths 1 " << neural_net.widths[2] << "\n";
     double** inputs = new double*[256]; // an array for all of the different values for a 8 bit intiger
     double** targets = new double*[256]; // the targets for the array

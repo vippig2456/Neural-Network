@@ -3,7 +3,7 @@
 
 double learn(double input){
     if(input < 1){
-        return 0.0001;
+        return 0.01;
     } 
     if(input < 10000){
         return 0.001;
@@ -22,9 +22,9 @@ int main() {
     for(int i = 0; i < 256; i++){
         inputs[i] = new double[8];
         targets[i] = new double[1];
-        targets[i][0] = i;
+        targets[i][0] = i/255.0;
         for(int j = 0; j < 8; j++){
-            inputs[i][j] = (i & (1<<j)); // returns the bit at position j for the number i
+            inputs[i][j] = (i & (1 << j)) ? 1.0 : 0.0;
         }
     }
     for(int i = 0; i < 5000; i++){
